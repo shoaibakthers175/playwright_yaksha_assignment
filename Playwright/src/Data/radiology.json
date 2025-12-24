@@ -3,7 +3,7 @@
     "Filter": "X-RAY"
   },
   "DateRange": {
-    "FromDate": "01-01-2020",
-    "ToDate": "01-03-2024"
+    "FromDate": "2020-01-01",
+    "ToDate": "2024-03-01"
   }
 }

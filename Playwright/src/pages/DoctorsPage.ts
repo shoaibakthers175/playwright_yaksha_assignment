@@ -1,4 +1,5 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
+import doctorData from "../Data/doctor.json";
 
 export class DoctorsPage {
   readonly page: Page;
@@ -14,15 +15,15 @@ export class DoctorsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.doctorsLink = page.locator('');
-    this.inpatientDepartmentTab = page.locator('');
-    this.searchBar = page.locator("");
-    this.orderDropdown = page.locator("");
-    this.imagingActionButton = page.locator('');
-    this.searchOrderItem = page.locator('');
-    this.proceedButton = page.locator('');
-    this.signButton = page.locator('');
-    this.successMessage = page.locator('');
+    this.doctorsLink = page.locator('//a[@href="#/Doctors" and .//span[normalize-space()="Doctor"]]');
+    this.inpatientDepartmentTab = page.locator('//ul[contains(@class,"page-breadcrumb")]//a[@href="#/Doctors/InPatientDepartment"]');
+    this.searchBar = page.locator('(//input[@id="quickFilterInput"])[3]');
+    this.orderDropdown = page.locator('//select[option[normalize-space()="Imaging"]]');
+    this.imagingActionButton = page.locator('//a[@title="Imaging"]').first();
+    this.searchOrderItem = page.locator('//input[@aria-label="search" and @placeholder="search order items"]');
+    this.proceedButton = page.locator('//button[normalize-space()="Proceed" and contains(@class,"btn")]');
+    this.signButton = page.locator('//button[normalize-space()="Sign" and contains(@class,"btn-primary")]');
+    this.successMessage = page.locator('//div[contains(@class,"msgbox-success") and contains(@class,"danphe-msgbox")]');
   }
 
   /**
@@ -33,6 +34,15 @@ export class DoctorsPage {
    * The method confirms the successful placement of the order by verifying the success message.
    */
   async performInpatientImagingOrder() {
-    // write your logic here
+    await this.doctorsLink.click();
+    await this.inpatientDepartmentTab.click();
+    await this.searchBar.fill(doctorData.patientName);
+    await this.imagingActionButton.click();
+    await this.orderDropdown.selectOption(doctorData.Dropdown.Option);
+    await this.searchOrderItem.fill(doctorData.Dropdown.searchOrderItem);
+    await this.searchOrderItem.press('Enter');
+    await this.proceedButton.click();
+    await this.signButton.click();
+    await expect(this.successMessage).toBeVisible();
   }
 }

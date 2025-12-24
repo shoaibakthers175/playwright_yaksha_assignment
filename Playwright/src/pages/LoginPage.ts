@@ -1,4 +1,5 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
+import loginData from "../Data/login.json";
 
 export class LoginPage {
   readonly page: Page;
@@ -11,44 +12,60 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.usernameInput = page.locator(``);
-    this.passwordInput = page.locator(``);
-    this.loginButton = page.locator(``);
-    this.loginErrorMessage = page.locator(``);
-    this.admin = page.locator('');
-    this.logOut = page.locator("");
+
+    // ✅ Correct & stable locators (Yaksha UI friendly)
+    this.usernameInput = page.locator('//input[@name="Username"]');
+    this.passwordInput = page.locator('//input[@name="password"]');
+    this.loginButton = page.locator('//button[@id="login"]');
+    this.loginErrorMessage = page.locator("//div[contains(@class,'alert') and contains(text(),'Invalid credentials')]");
+    this.admin = page.locator("//li[contains(@class,'dropdown-user')]");
+    this.logOut = page.locator("//li[contains(@class,'dropdown-user')]//a[normalize-space()='Log Out']");
+
   }
 
   /**
-   * @Test0 This method logs in the user with valid credentials.
-   *
-   * @description This method performs the login operation using the provided valid credentials. It highlights the input
-   *              fields for better visibility during interaction and fills the username and password fields. After submitting
-   *              the login form by clicking the login button, it validates the success of the login process. The login is
-   *              considered successful if there are no errors.
+   * @Test0
+   * Login with valid credentials
    */
   async performLogin() {
-    // write your logic here
+    await this.usernameInput.fill(loginData.ValidLogin.ValidUserName);
+    await this.passwordInput.fill(loginData.ValidLogin.ValidPassword);
+
+    await this.loginButton.click({ force: true });
+
+    // await this.page.waitForLoadState('networkidle');
+
+    // wait for dashboard/admin menu
+    await expect(this.admin).toBeVisible({ timeout: 120000 });
   }
 
   /**
-   * @Test5 This method attempts login with invalid credentials and retrieves the resulting error message.
-   *
-   * @description Tries logging in with incorrect credentials to verify the login error message display.
-   *              Highlights each input field and the login button during interaction. Captures and returns
-   *              the error message displayed upon failed login attempt.
+   * @Test5
+   * Login with invalid credentials
    */
-  async performLoginWithInvalidCredentials() {
-    // write your logic here
-  }
+async performLoginWithInvalidCredentials() {
+  await this.usernameInput.fill(loginData.InvalidLogin.InvalidUserName);
+  await this.passwordInput.fill(loginData.InvalidLogin.InvalidPassword);
+  await this.loginButton.click({ force: true });
+
+  await this.page.waitForLoadState('networkidle');
+
+  // wait for error message
+  await expect(this.loginErrorMessage).toBeVisible({ timeout: 30000 });
+}
+
+
+
 
   /**
    * @Test7
-   * @description This method verifies the logout functionality from the Admin dropdown.
-   * @expected
-   * User is logged out successfully and the login page is displayed.
+   * Logout from Admin dropdown
    */
   async verifyLogoutFunctionality() {
-    // write your logic here
+    await this.admin.click();
+    await this.logOut.click();
+
+    // verify redirected to login page
+    await expect(this.loginButton).toBeVisible({ timeout: 30000 });
   }
 }

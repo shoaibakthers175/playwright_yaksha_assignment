@@ -1,4 +1,5 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
+import subStoreData from "../Data/subStore.json";
 
 export class SubStorePage {
   readonly page: Page;
@@ -12,10 +13,10 @@ export class SubStorePage {
     constructor(page: Page) {
         this.page = page;
         this.substore = {
-            substoreLink: page.locator(''),
-            selectSubstore: page.locator(''),
-            inventoryRequisition: page.locator(''),
-            inventory: page.locator(``),
+            substoreLink: page.locator('//span[normalize-space()="SubStore"]'),
+            selectSubstore: page.locator('//span[contains(@class,"report-name")]//i[normalize-space()="SubStore1"]'),
+            inventoryRequisition: page.locator('//a[@href="#/WardSupply/Inventory/InventoryRequisitionList" and normalize-space()="Inventory Requisition"]'),
+            inventory: page.locator('//div[contains(@class,"page-content")]')
         }
     }
 
@@ -27,6 +28,9 @@ export class SubStorePage {
      * Screenshot of the page is captured and saved successfully.
      */
   async captureInventoryRequisitionScreenshot() {
-    // Write your logic here
+    await this.substore.substoreLink.click();
+    await this.substore.selectSubstore.click();
+    await this.substore.inventoryRequisition.click();
+    await this.page.screenshot({ path: 'screenshots/inventory-requisition.png' });
   }
 }

@@ -1,4 +1,5 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
+import maternityData from "../Data/maternity.json";
 
 export default class MaternityPage {
 
@@ -14,13 +15,13 @@ export default class MaternityPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.maternityLink = page.locator('');
+    this.maternityLink = page.locator('//a[@href="#/Maternity" and .//span[normalize-space()="Maternity"]]');
     this.maternity = {
-      reportLink: this.page.locator(''),
-      maternityAllowanceReport: this.page.locator(''),
-      dateFrom: this.page.locator(''),
-      showReportBtn: this.page.locator(''),
-      dataType: this.page.locator(""),
+      reportLink: page.locator('//ul[contains(@class,"page-breadcrumb")]//a[normalize-space()="Reports"]'),
+      maternityAllowanceReport: page.locator('//a[@href="#/Maternity/Reports/MaternityAllowance"]'),
+     dateFrom: page.locator('(//input[@type="date" and @id="date"])[1]'),
+      showReportBtn: page.locator('//button[@type="button" and contains(text(),"Show")]'),
+      dataType: page.locator('//div[@id="print_netCashCollection"]'),
     };
   }
 
@@ -33,6 +34,17 @@ export default class MaternityPage {
    * Throws an error if the data grid visibility states do not match the expected outcomes.
    */
   public async verifyMaternityAllowanceReport() {
-    // write your logic here
-  }
+  await this.maternityLink.click();
+  await this.maternity.reportLink.click();
+  await this.maternity.maternityAllowanceReport.click();
+
+  // Fill date directly (YYYY-MM-DD)
+  await this.maternity.dateFrom.fill(maternityData.DateRange.FromDate);
+
+  await this.maternity.showReportBtn.click();
+
+  // ag-grid table visible
+  await expect(this.maternity.dataType).toBeVisible({ timeout: 30000 });
+}
+
 }

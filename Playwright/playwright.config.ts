@@ -23,6 +23,8 @@ export default defineConfig({
         viewport: { width: 1520, height: 1080 },
         launchOptions: {
           args: ["--disable-web-security"],
+          slowMo: 1000,
+
         },
       },
     },
@@ -30,9 +32,10 @@ export default defineConfig({
 
   reporter: [
     ["list"], // Default console output
-    [
-      "./jest/PlaywrightCustomReporter.js", 
-      { customOption: "value" } // Optional configuration for the custom reporter
-    ],
+    // Disabled custom reporter due to test loading conflict
+    // [
+    //   "./jest/PlaywrightCustomReporter.js", 
+    //   { customOption: "value" } // Optional configuration for the custom reporter
+    // ],
   ],
 });
